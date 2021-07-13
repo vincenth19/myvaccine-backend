@@ -36,8 +36,8 @@ app.get("/api", async (req, res) => {
         `${url}/api/vacc`,
         `${url}/api/vacc/update`,
         `${url}/api/vacc/states`,
-        `${url}/api/vacc/states/update`,
-        `${url}/api/vacc/states/update/:state-name`,
+        `${url}/api/vacc/update/states`,
+        `${url}/api/vacc/update/states/:state-name`,
         `${url}/api/vacc/states/:state_name`,
         `pattern example ${url}/api/vacc/states/kuala-lumpur`,
       ],
@@ -45,8 +45,8 @@ app.get("/api", async (req, res) => {
         `${url}/api/vacc_reg`,
         `${url}/api/vacc_reg/update`,
         `${url}/api/vacc_reg/states`,
-        `${url}/api/vacc_reg/states/update`,
-        `${url}/api/vacc_reg/states/update/:state-name`,
+        `${url}/api/vacc_reg/update/states`,
+        `${url}/api/vacc_reg/update/states/:state-name`,
         `${url}/api/vacc_reg/states/:state-name`,
         `pattern example ${url}/api/vacc_reg/states/kuala-lumpur`,
       ],
@@ -295,7 +295,7 @@ app.get("/api/vacc/states/:statename", async (req, res) => {
     });
 });
 
-app.get("/api/vacc/states/update", async (req, res) => {
+app.get("/api/vacc/update/states/", async (req, res) => {
   const { data } = await axios.get(
     "https://raw.githubusercontent.com/CITF-Malaysia/citf-public/main/vaccination/vax_state.csv"
   );
@@ -338,7 +338,7 @@ app.get("/api/vacc/states/update", async (req, res) => {
     });
 });
 
-app.get("/api/vacc/states/update/:statename", async (req, res) => {
+app.get("/api/vacc/update/states/:statename", async (req, res) => {
   const { data } = await axios.get(
     "https://raw.githubusercontent.com/CITF-Malaysia/citf-public/main/vaccination/vax_state.csv"
   );
@@ -626,19 +626,19 @@ app.get("/api/vacc_reg/states/:statename", async (req, res) => {
     });
 });
 
-app.get("/api/vacc_reg/states/update", async (req, res) => {
+app.get("/api/vacc_reg/update/states", async (req, res) => {
   const { data } = await axios.get(
     "https://raw.githubusercontent.com/CITF-Malaysia/citf-public/main/registration/vaxreg_state.csv"
   );
-
   csv({
     noheader: false,
     output: "json",
   })
     .fromString(data)
     .then((csvRow) => {
-      function getTodayData() {
+      function getUpdateData() {
         let data = [];
+
         for (let i = 1; i < 17; i++) {
           data.push({
             stateName: csvRow[csvRow.length - i].state,
@@ -662,7 +662,7 @@ app.get("/api/vacc_reg/states/update", async (req, res) => {
 
       let modifiedData = {
         date: csvRow[csvRow.length - 1].date,
-        stateData: getTodayData(),
+        stateData: getUpdateData(),
       };
 
       res.status(200).send({
@@ -671,7 +671,7 @@ app.get("/api/vacc_reg/states/update", async (req, res) => {
     });
 });
 
-app.get("/api/vacc_reg/states/update/:statename", async (req, res) => {
+app.get("/api/vacc_reg/update/state/:statename", async (req, res) => {
   const { data } = await axios.get(
     "https://raw.githubusercontent.com/CITF-Malaysia/citf-public/main/registration/vaxreg_state.csv"
   );
