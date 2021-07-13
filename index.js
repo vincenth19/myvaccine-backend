@@ -671,7 +671,7 @@ app.get("/api/vacc_reg/update/states", async (req, res) => {
     });
 });
 
-app.get("/api/vacc_reg/update/state/:statename", async (req, res) => {
+app.get("/api/vacc_reg/update/states/:statename", async (req, res) => {
   const { data } = await axios.get(
     "https://raw.githubusercontent.com/CITF-Malaysia/citf-public/main/registration/vaxreg_state.csv"
   );
