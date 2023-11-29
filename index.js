@@ -127,21 +127,7 @@ app.get("/api/vacc", async (req, res) => {
   })
     .fromString(data)
     .then((csvRow) => {
-      let modifiedData = csvRow.map((data) => {
-        return {
-          date: data.date,
-          daily_dose1: parseInt(data.dose1_daily),
-          daily_dose2: parseInt(data.dose2_daily),
-          daily_total: parseInt(data.total_daily),
-          total_dose1: parseInt(data.dose1_cumul),
-          total_dose2: parseInt(data.dose2_cumul),
-          total_total: parseInt(data.total_cumul),
-        };
-      });
-
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(csvRow);
     });
 });
 
@@ -156,18 +142,7 @@ app.get("/api/vacc/update", async (req, res) => {
   })
     .fromString(data)
     .then((csvRow) => {
-      let modifiedData = {
-        update_dose1: parseInt(csvRow[csvRow.length - 1].dose1_daily),
-        update_dose2: parseInt(csvRow[csvRow.length - 1].dose2_daily),
-        update_total: parseInt(csvRow[csvRow.length - 1].total_daily),
-        total_dose1: parseInt(csvRow[csvRow.length - 1].dose1_cumul),
-        total_dose2: parseInt(csvRow[csvRow.length - 1].dose2_cumul),
-        total_total: parseInt(csvRow[csvRow.length - 1].total_cumul),
-      };
-
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(csvRow);
     });
 });
 
@@ -182,51 +157,7 @@ app.get("/api/vacc/states", async (req, res) => {
   })
     .fromString(data)
     .then((csvRow) => {
-      let temp = [];
-
-      function onlyUnique(value, index, self) {
-        return self.indexOf(value) === index;
-      }
-
-      csvRow.forEach((e) => {
-        temp.push(e.date);
-      });
-
-      temp = temp.filter(onlyUnique);
-      let cleanData = temp.map((data) => {
-        return {
-          date: data,
-        };
-      });
-
-      function getDayData(date) {
-        let data = [];
-        csvRow.forEach((e) => {
-          if (e.date === date) {
-            data.push({
-              stateName: e.state,
-              daily_dose1: parseInt(e.dose1_daily),
-              daily_dose2: parseInt(e.dose2_daily),
-              daily_total: parseInt(e.total_daily),
-              total_dose1: parseInt(e.dose1_cumul),
-              total_dose2: parseInt(e.dose2_cumul),
-              total_total: parseInt(e.total_cumul),
-            });
-          }
-        });
-        return data;
-      }
-
-      let modifiedData = cleanData.map((data) => {
-        return {
-          date: data.date,
-          stateData: getDayData(data.date),
-        };
-      });
-
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(csvRow);
     });
 });
 
@@ -261,21 +192,11 @@ app.get("/api/vacc/states/:statename", async (req, res) => {
 
       csvRow.forEach((e) => {
         if (e.state === param) {
-          modifiedData.push({
-            date: e.date,
-            daily_dose1: parseInt(e.dose1_daily),
-            daily_dose2: parseInt(e.dose2_daily),
-            daily_total: parseInt(e.total_daily),
-            total_dose1: parseInt(e.dose1_cumul),
-            total_dose2: parseInt(e.dose2_cumul),
-            total_total: parseInt(e.total_cumul),
-          });
+          modifiedData.push(e);
         }
       });
 
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(modifiedData);
     });
 });
 
@@ -294,27 +215,14 @@ app.get("/api/vacc/update/states/", async (req, res) => {
         let data = [];
 
         for (let i = 1; i < 17; i++) {
-          data.push({
-            stateName: csvRow[csvRow.length - i].state,
-            daily_dose1: parseInt(csvRow[csvRow.length - i].dose1_daily),
-            daily_dose2: parseInt(csvRow[csvRow.length - i].dose2_daily),
-            daily_total: parseInt(csvRow[csvRow.length - i].total_daily),
-            total_dose1: parseInt(csvRow[csvRow.length - i].dose1_cumul),
-            total_dose2: parseInt(csvRow[csvRow.length - i].dose2_cumul),
-            total_total: parseInt(csvRow[csvRow.length - i].total_cumul),
-          });
+          data.push(csvRow[csvRow.length - i]);
         }
         return data;
       }
 
-      let modifiedData = {
-        date: csvRow[csvRow.length - 1].date,
-        stateData: getTodayData(),
-      };
+      let modifiedData = getTodayData();
 
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(modifiedData);
     });
 });
 
@@ -347,30 +255,16 @@ app.get("/api/vacc/update/states/:statename", async (req, res) => {
       }
 
       function getTodayData(stateName) {
-        let data = [];
-
         for (let i = 1; i < 17; i++) {
           if (csvRow[csvRow.length - i].state === stateName) {
-            data.push({
-              date: csvRow[csvRow.length - 1].date,
-              daily_dose1: parseInt(csvRow[csvRow.length - i].dose1_daily),
-              daily_dose2: parseInt(csvRow[csvRow.length - i].dose2_daily),
-              daily_total: parseInt(csvRow[csvRow.length - i].total_daily),
-              total_dose1: parseInt(csvRow[csvRow.length - i].dose1_cumul),
-              total_dose2: parseInt(csvRow[csvRow.length - i].dose2_cumul),
-              total_total: parseInt(csvRow[csvRow.length - i].total_cumul),
-            });
+            return csvRow[csvRow.length - i];
           }
         }
-
-        return data;
       }
 
       let modifiedData = getTodayData(param);
 
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(modifiedData);
     });
 });
 
@@ -385,24 +279,9 @@ app.get("/api/vacc_reg", async (req, res) => {
   })
     .fromString(data)
     .then((csvRow) => {
-      let modifiedData = csvRow.map((data) => {
-        return {
-          date: data.date,
-          totalAll: parseInt(data.total),
-          totalPhase2: parseInt(data.phase2),
-          platform_mysj: parseInt(data.mysj),
-          platform_call: parseInt(data.call),
-          platform_web: parseInt(data.web),
-          demographic_children: parseInt(data.children),
-          demographic_elderly: parseInt(data.elderly),
-          demographic_comorb: parseInt(data.comorb),
-          demographic_disabled: parseInt(data.oku),
-        };
-      });
+      console.log(JSON.stringify(csvRow, null, 2));
 
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(csvRow);
     });
 });
 
@@ -418,49 +297,49 @@ app.get("/api/vacc_reg/update", async (req, res) => {
     .fromString(data)
     .then((csvRow) => {
       let modifiedData = {
-        update_totalAll:
-          parseInt(csvRow[csvRow.length - 1].total) -
-          parseInt(csvRow[csvRow.length - 2].total),
-        update_totalPhase2:
-          parseInt(csvRow[csvRow.length - 1].phase2) -
-          parseInt(csvRow[csvRow.length - 2].phase2),
-        update_platform_mysj:
-          parseInt(csvRow[csvRow.length - 1].mysj) -
-          parseInt(csvRow[csvRow.length - 2].mysj),
-        update_platform_call:
-          parseInt(csvRow[csvRow.length - 1].call) -
-          parseInt(csvRow[csvRow.length - 2].call),
-        update_platform_web:
-          parseInt(csvRow[csvRow.length - 1].web) -
-          parseInt(csvRow[csvRow.length - 2].web),
-        update_demographic_children:
-          parseInt(csvRow[csvRow.length - 1].children) -
-          parseInt(csvRow[csvRow.length - 2].children),
-        update_demographic_elderly:
-          parseInt(csvRow[csvRow.length - 1].elderly) -
-          parseInt(csvRow[csvRow.length - 2].elderly),
-        update_demographic_comorb:
-          parseInt(csvRow[csvRow.length - 1].comorb) -
-          parseInt(csvRow[csvRow.length - 2].comorb),
-        update_demographic_disabled:
-          parseInt(csvRow[csvRow.length - 1].oku) -
-          parseInt(csvRow[csvRow.length - 2].oku),
-        total_totalAll: parseInt(csvRow[csvRow.length - 1].total),
-        total_totalPhase2: parseInt(csvRow[csvRow.length - 1].phase2),
-        total_platform_mysj: parseInt(csvRow[csvRow.length - 1].mysj),
-        total_platform_call: parseInt(csvRow[csvRow.length - 1].call),
-        total_platform_web: parseInt(csvRow[csvRow.length - 1].web),
-        total_demographic_children: parseInt(
-          csvRow[csvRow.length - 1].children
-        ),
-        total_demographic_elderly: parseInt(csvRow[csvRow.length - 1].elderly),
-        total_demographic_comorb: parseInt(csvRow[csvRow.length - 1].comorb),
-        total_demographic_disabled: parseInt(csvRow[csvRow.length - 1].oku),
+        update: {
+          total:
+            parseInt(csvRow[csvRow.length - 1].total) -
+            parseInt(csvRow[csvRow.length - 2].total),
+          phase2:
+            parseInt(csvRow[csvRow.length - 1].phase2) -
+            parseInt(csvRow[csvRow.length - 2].phase2),
+          mysj:
+            parseInt(csvRow[csvRow.length - 1].mysj) -
+            parseInt(csvRow[csvRow.length - 2].mysj),
+          call:
+            parseInt(csvRow[csvRow.length - 1].call) -
+            parseInt(csvRow[csvRow.length - 2].call),
+          web:
+            parseInt(csvRow[csvRow.length - 1].web) -
+            parseInt(csvRow[csvRow.length - 2].web),
+          children:
+            parseInt(csvRow[csvRow.length - 1].children) -
+            parseInt(csvRow[csvRow.length - 2].children),
+          elderly:
+            parseInt(csvRow[csvRow.length - 1].elderly) -
+            parseInt(csvRow[csvRow.length - 2].elderly),
+          comorb:
+            parseInt(csvRow[csvRow.length - 1].comorb) -
+            parseInt(csvRow[csvRow.length - 2].comorb),
+          oku:
+            parseInt(csvRow[csvRow.length - 1].oku) -
+            parseInt(csvRow[csvRow.length - 2].oku),
+        },
+        cummulative: {
+          total: parseInt(csvRow[csvRow.length - 1].total),
+          phase2: parseInt(csvRow[csvRow.length - 1].phase2),
+          mysj: parseInt(csvRow[csvRow.length - 1].mysj),
+          call: parseInt(csvRow[csvRow.length - 1].call),
+          web: parseInt(csvRow[csvRow.length - 1].web),
+          children: parseInt(csvRow[csvRow.length - 1].children),
+          elderly: parseInt(csvRow[csvRow.length - 1].elderly),
+          comorb: parseInt(csvRow[csvRow.length - 1].comorb),
+          oku: parseInt(csvRow[csvRow.length - 1].oku),
+        },
       };
 
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(modifiedData);
     });
 });
 
@@ -520,9 +399,7 @@ app.get("/api/vacc_reg/states", async (req, res) => {
         };
       });
 
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(modifiedData);
     });
 });
 
@@ -572,9 +449,7 @@ app.get("/api/vacc_reg/states/:statename", async (req, res) => {
         }
       });
 
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(modifiedData);
     });
 });
 
@@ -613,9 +488,7 @@ app.get("/api/vacc_reg/update/states", async (req, res) => {
         stateData: getUpdateData(),
       };
 
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(modifiedData);
     });
 });
 
@@ -672,9 +545,7 @@ app.get("/api/vacc_reg/update/states/:statename", async (req, res) => {
 
       let modifiedData = getTodayData(param);
 
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(modifiedData);
     });
 });
 
@@ -697,9 +568,7 @@ app.get("/api/pop", async (req, res) => {
           "60andAbove": parseInt(data.pop_60),
         };
       });
-      res.status(200).send({
-        modifiedData,
-      });
+      res.status(200).send(modifiedData);
     });
 });
 
