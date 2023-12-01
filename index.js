@@ -142,7 +142,7 @@ app.get("/api/vacc/update", async (req, res) => {
   })
     .fromString(data)
     .then((csvRow) => {
-      res.status(200).send(csvRow);
+      res.status(200).send(csvRow[csvRow.length - 1]);
     });
 });
 
